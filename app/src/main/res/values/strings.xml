@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Douban Movie</string>
+    <string name="placeholder_search">抬头, 看树</string>
+</resources>
