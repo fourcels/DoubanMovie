@@ -1,8 +1,10 @@
 package com.example.doubanmovie.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -22,7 +25,7 @@ import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 @Composable
 fun RatingBar(
     modifier: Modifier = Modifier,
-    rating: Float,
+    rating: Float?,
     max: Float = 10f,
     numberOfStars: Int = 5,
     contentDescription: String = "rating",
@@ -31,6 +34,13 @@ fun RatingBar(
     unRatedStarsColor: Color = Color.LightGray,
     spaceBetween: Dp = 0.dp
 ) {
+    if (rating == null) {
+        return Text(
+            text = "暂无评分",
+            style = MaterialTheme.typography.body2,
+            modifier = Modifier.alpha(ContentAlpha.medium)
+        )
+    }
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -59,6 +69,10 @@ fun RatingBar(
 @Composable
 fun RatingBarPreview() {
     DoubanMovieTheme {
-        RatingBar(rating = 3f)
+        Column {
+
+            RatingBar(rating = 3f)
+            RatingBar(rating = null)
+        }
     }
 }
