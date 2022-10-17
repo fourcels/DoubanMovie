@@ -15,12 +15,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.doubanmovie.R
+import com.example.doubanmovie.ui.movie.MovieScreen
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 
 @Composable
 fun HomeScreen() {
     Column {
         SearchBar()
+        MovieScreen()
     }
 }
 

@@ -3,17 +3,21 @@ package com.example.doubanmovie.ui.movie
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.ArrowRightAlt
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.PlayCircleOutline
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,10 +28,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import com.example.doubanmovie.R
 import com.example.doubanmovie.data.MovieItem
@@ -37,8 +45,34 @@ import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 
 @Composable
 fun MovieScreen() {
-    Column {
+    LazyColumn {
+        item {
+            NavList()
+        }
+        item {
 
+            HitTheaters()
+        }
+        item {
+
+            ComingMovie()
+        }
+        item {
+
+            MovieRank()
+        }
+        item {
+
+            SearchMovie()
+        }
+        item {
+
+            MovieRank()
+        }
+        item {
+
+            MovieRank()
+        }
     }
 }
 
@@ -337,9 +371,69 @@ fun SearchMovie() {
 
 @Composable
 fun FilterBar() {
-    Row {
-        CanPlay()
-        FilterList()
+    var current by remember {
+        mutableStateOf(-1)
+    }
+    Column {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            CanPlay()
+            filterList.forEachIndexed { index, filterItem ->
+                FilterItem(
+                    data = filterItem,
+                    selected = current == index,
+                    onClick = {
+                        current = if (current == index) {
+                            -1
+                        } else {
+                            index
+                        }
+                    })
+            }
+            FilterMore()
+        }
+        Box {
+            if (current >= 0) {
+                Popup(
+                    alignment = Alignment.TopStart,
+                    properties = PopupProperties(clippingEnabled = false)
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        color = Color.Black.copy(alpha = 0.1f)
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(align = Alignment.Top),
+                            shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                        ) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(4),
+                                userScrollEnabled = false,
+                                contentPadding = PaddingValues(12.dp)
+                            ) {
+                                items(filterList[current].items) { item ->
+                                    Card(
+                                        modifier = Modifier.padding(4.dp),
+                                        backgroundColor = Color.LightGray.copy(alpha = 0.2f),
+                                        elevation = 0.dp,
+                                    ) {
+                                        Text(
+                                            item,
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.body2,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -371,27 +465,41 @@ fun CanPlay() {
 }
 
 @Composable
-fun FilterList() {
-    Row {
-        filterList.forEach { item ->
-            FilterItem(data = item)
+fun FilterItem(selected: Boolean = false, data: FilterItem, onClick: () -> Unit = {}) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.selectable(
+                selected = selected,
+                onClick = onClick,
+            )
+        ) {
+            Text(text = data.name, style = MaterialTheme.typography.caption)
+            Icon(
+                imageVector = if (selected) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                contentDescription = null,
+                Modifier.size(16.dp)
+            )
         }
     }
 }
 
 @Composable
-fun FilterItem(selected: Boolean = false, data: FilterItem, onClick: (FilterItem) -> Unit = {}) {
-    Row {
-        Text(text = data.name)
-        Icon(imageVector = Icons.Outlined.ArrowRightAlt, contentDescription = null)
-    }
+fun FilterMore() {
+    Icon(
+        painterResource(id = R.drawable.ic_filter),
+        contentDescription = null,
+        Modifier.size(16.dp),
+    )
 }
 
 @Preview(showBackground = true, widthDp = 420)
 @Composable
 fun SearchMoviePreview() {
     DoubanMovieTheme {
-        SearchMovie()
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            SearchMovie()
+        }
     }
 }
 
@@ -426,6 +534,14 @@ fun HitTheatersPreview() {
 fun TabListPreview() {
     DoubanMovieTheme {
         NavList()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+fun MovieScreenPreview() {
+    DoubanMovieTheme {
+        MovieScreen()
     }
 }
 
