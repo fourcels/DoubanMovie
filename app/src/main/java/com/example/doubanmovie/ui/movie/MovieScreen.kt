@@ -1,6 +1,7 @@
 package com.example.doubanmovie.ui.movie
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,10 +9,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -31,23 +32,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import com.example.doubanmovie.R
 import com.example.doubanmovie.data.MovieItem
 import com.example.doubanmovie.ui.components.RatingBar
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun MovieScreen() {
-    LazyColumn {
+    val listState = rememberLazyListState()
+    // Remember a CoroutineScope to be able to launch
+    val coroutineScope = rememberCoroutineScope()
+    LazyColumn(state = listState) {
         item {
-            NavList()
+            NavList(onSearch = {
+                coroutineScope.launch {
+                    // Animate scroll to the 10th item
+                    listState.animateScrollToItem(index = 4)
+                }
+            })
         }
         item {
 
@@ -63,7 +72,20 @@ fun MovieScreen() {
         }
         item {
 
-            SearchMovie()
+            SearchMovie(onFilterItemClick = {
+                coroutineScope.launch {
+                    // Animate scroll to the 10th item
+                    listState.scrollToItem(index = 4)
+                }
+            })
+        }
+        item {
+
+            MovieRank()
+        }
+        item {
+
+            MovieRank()
         }
         item {
 
@@ -77,24 +99,35 @@ fun MovieScreen() {
 }
 
 @Composable
-fun NavList() {
+fun NavList(onSearch: () -> Unit = {}) {
+    val navList = listOf(
+        NavItem("找电影", R.drawable.ic_subjects_categories_movie),
+        NavItem("豆瓣榜单", R.drawable.ic_subjects_ranking),
+        NavItem("即将上映", R.drawable.ic_subjects_time),
+        NavItem("豆瓣片单", R.drawable.ic_subjects_movie_lists),
+    )
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        navList.forEach { item ->
+        navList.forEachIndexed { index, navItem ->
             Button(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(0.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.background
                 ),
                 shape = RoundedCornerShape(20),
-                onClick = { /*TODO*/ }) {
+                onClick = if (index == 0) onSearch else ({})
+            ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painter = painterResource(item.icon), null)
+                    Image(painter = painterResource(navItem.icon), null)
                     Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.body2,
+                        text = navItem.name,
+                        style = MaterialTheme.typography.caption,
                         modifier = Modifier.alpha(ContentAlpha.medium)
                     )
                 }
@@ -105,7 +138,7 @@ fun NavList() {
 
 @Composable
 fun HitTheaters() {
-    Column {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
         HitHeader()
         HitBody()
     }
@@ -114,7 +147,7 @@ fun HitTheaters() {
 @Composable
 fun HitHeader() {
     Row(
-        modifier = Modifier.padding(PaddingValues(vertical = 16.dp)),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         HitTabbar()
@@ -126,6 +159,7 @@ fun HitHeader() {
 @Composable
 fun HitBody() {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        item {}
         items(movieList) { item ->
             Column {
                 AsyncImage(
@@ -135,8 +169,8 @@ fun HitBody() {
                     error = painterResource(R.drawable.ic_movie_subjectcover_default),
                     contentDescription = null,
                     modifier = Modifier
-                        .width(150.dp)
-                        .height(200.dp)
+                        .width(110.dp)
+                        .height(160.dp)
                         .clip(RoundedCornerShape(10.dp)),
                     contentScale = ContentScale.Crop,
                 )
@@ -147,13 +181,14 @@ fun HitBody() {
 
             }
         }
+        item {}
     }
 }
 
 
 @Composable
 fun ShowMore() {
-    var total = 33
+    val total = 33
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(text = "全部$total", style = MaterialTheme.typography.body2)
         Icon(
@@ -200,7 +235,10 @@ fun HitTabbar() {
 
 @Composable
 fun ComingMovie() {
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(16.dp)
+    ) {
         comingMovieList.forEach { item ->
             Button(
                 onClick = { /*TODO*/ },
@@ -235,8 +273,8 @@ fun ComingMovie() {
                             error = painterResource(R.drawable.ic_movie_subjectcover_default),
                             contentDescription = null,
                             modifier = Modifier
-                                .width(75.dp)
-                                .height(65.dp)
+                                .width(55.dp)
+                                .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp)),
                             contentScale = ContentScale.Crop,
                         )
@@ -251,13 +289,16 @@ fun ComingMovie() {
 fun MovieRank() {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.height(300.dp)
+        modifier = Modifier
+            .padding(vertical = 16.dp)
+            .height(240.dp)
     ) {
+        item {}
         items(movieRankList) { item ->
             Surface(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(380.dp),
+                    .width(280.dp),
                 shape = RoundedCornerShape(10.dp),
                 contentColor = Color.White,
             ) {
@@ -283,12 +324,12 @@ fun MovieRank() {
                 ) {
                     Column(
                         modifier = Modifier.padding(PaddingValues(16.dp)),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(text = item.title, style = MaterialTheme.typography.h5)
+                            Text(text = item.title, style = MaterialTheme.typography.h6)
                             Spacer(modifier = Modifier.weight(1f))
                             Text(text = "豆瓣榜单", style = MaterialTheme.typography.body2)
                         }
@@ -306,9 +347,9 @@ fun MovieRank() {
                                         error = painterResource(R.drawable.ic_movie_subjectcover_default),
                                         contentDescription = null,
                                         modifier = Modifier
-                                            .width(45.dp)
-                                            .height(55.dp)
-                                            .clip(RoundedCornerShape(10.dp)),
+                                            .width(30.dp)
+                                            .height(42.dp)
+                                            .clip(RoundedCornerShape(4.dp)),
                                         contentScale = ContentScale.Crop,
                                     )
                                     Column {
@@ -352,25 +393,26 @@ fun MovieRank() {
                 }
             }
         }
+        item {}
     }
 }
 
 @Composable
-fun SearchMovie() {
-    Column {
+fun SearchMovie(onFilterItemClick: () -> Unit = {}) {
+    Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "找电影",
             style = MaterialTheme.typography.h5,
             modifier = Modifier.padding(
-                PaddingValues(vertical = 16.dp)
+                PaddingValues(bottom = 16.dp)
             )
         )
-        FilterBar()
+        FilterBar(onFilterItemClick)
     }
 }
 
 @Composable
-fun FilterBar() {
+fun FilterBar(onFilterItemClick: () -> Unit = {}) {
     var current by remember {
         mutableStateOf(-1)
     }
@@ -385,55 +427,18 @@ fun FilterBar() {
                         current = if (current == index) {
                             -1
                         } else {
+                            onFilterItemClick()
                             index
                         }
-                    })
+                    },
+                    onDismissRequest = {
+                        current = -1
+                    },
+                )
             }
             FilterMore()
         }
-        Box {
-            if (current >= 0) {
-                Popup(
-                    alignment = Alignment.TopStart,
-                    properties = PopupProperties(clippingEnabled = false)
-                ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        color = Color.Black.copy(alpha = 0.1f)
-                    ) {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight(align = Alignment.Top),
-                            shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                        ) {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(4),
-                                userScrollEnabled = false,
-                                contentPadding = PaddingValues(12.dp)
-                            ) {
-                                items(filterList[current].items) { item ->
-                                    Card(
-                                        modifier = Modifier.padding(4.dp),
-                                        backgroundColor = Color.LightGray.copy(alpha = 0.2f),
-                                        elevation = 0.dp,
-                                    ) {
-                                        Text(
-                                            item,
-                                            textAlign = TextAlign.Center,
-                                            style = MaterialTheme.typography.body2,
-                                            modifier = Modifier.padding(vertical = 8.dp)
-                                        )
-                                    }
-                                }
-                            }
 
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -465,7 +470,13 @@ fun CanPlay() {
 }
 
 @Composable
-fun FilterItem(selected: Boolean = false, data: FilterItem, onClick: () -> Unit = {}) {
+fun FilterItem(
+    selected: Boolean = false,
+    data: FilterItem,
+    onClick: () -> Unit = {},
+    onDismissRequest: () -> Unit = {}
+) {
+
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -481,8 +492,71 @@ fun FilterItem(selected: Boolean = false, data: FilterItem, onClick: () -> Unit 
                 Modifier.size(16.dp)
             )
         }
+        Box {
+            Popup(
+                popupPositionProvider = CustomPopupPositionProvider(),
+                properties = PopupProperties(clippingEnabled = false)
+            ) {
+                if (selected) {
+                    Surface(
+                        color = Color.Black.copy(alpha = 0.1f),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable(onClick = onDismissRequest)
+                    ) {
+
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(),
+                    shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                ) {
+                    if (selected) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(4),
+                            userScrollEnabled = false,
+                            contentPadding = PaddingValues(12.dp)
+                        ) {
+                            items(data.items) { item ->
+                                Card(
+                                    modifier = Modifier.padding(4.dp),
+                                    backgroundColor = Color.LightGray.copy(alpha = 0.2f),
+                                    elevation = 0.dp,
+                                ) {
+                                    Text(
+                                        item,
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.body2,
+                                        modifier = Modifier.padding(vertical = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
     }
 }
+
+class CustomPopupPositionProvider(
+    private val x: Int = 0,
+    private val y: Int = 0
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset = IntOffset(
+        0 + x,
+        anchorBounds.top + y
+    )
+}
+
 
 @Composable
 fun FilterMore() {
@@ -677,13 +751,6 @@ private val movieRankList = listOf(
 data class NavItem(
     val name: String,
     @DrawableRes val icon: Int,
-)
-
-private val navList = listOf(
-    NavItem("找电影", R.drawable.ic_subjects_categories_movie),
-    NavItem("豆瓣榜单", R.drawable.ic_subjects_ranking),
-    NavItem("即将上映", R.drawable.ic_subjects_time),
-    NavItem("豆瓣片单", R.drawable.ic_subjects_movie_lists),
 )
 
 private val movieList = listOf(

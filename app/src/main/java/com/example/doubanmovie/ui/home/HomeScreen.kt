@@ -1,6 +1,7 @@
 package com.example.doubanmovie.ui.home
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 fun HomeScreen() {
     Column {
         SearchBar()
+        TabBar()
         MovieScreen()
     }
 }
@@ -67,11 +69,12 @@ fun SearchBar() {
 }
 
 @Composable
-fun TabBar(
-    items: List<String>,
-    onTabSelected: (String) -> Unit,
-    current: String
-) {
+fun TabBar() {
+    val items = listOf(
+        "电影", "电视",
+        "读书", "连载",
+        "音乐", "同城"
+    )
     var currentIndex by remember {
         mutableStateOf(0)
     }
@@ -94,17 +97,8 @@ fun TabBar(
 @Preview(showBackground = true)
 @Composable
 fun TabBarPreview() {
-    var items = listOf(
-        "电影", "电视",
-        "读书", "连载",
-        "音乐", "同城"
-    )
     DoubanMovieTheme {
-        TabBar(
-            items = items,
-            current = items.first(),
-            onTabSelected = {}
-        )
+        TabBar()
     }
 }
 
