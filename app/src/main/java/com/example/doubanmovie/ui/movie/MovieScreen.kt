@@ -2,6 +2,7 @@ package com.example.doubanmovie.ui.movie
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,17 +45,21 @@ import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MovieScreen() {
     val listState = rememberLazyListState()
     // Remember a CoroutineScope to be able to launch
     val coroutineScope = rememberCoroutineScope()
     LazyColumn(state = listState) {
+        stickyHeader {
+            TabBar()
+        }
         item {
             NavList(onSearch = {
                 coroutineScope.launch {
                     // Animate scroll to the 10th item
-                    listState.animateScrollToItem(index = 4)
+                    listState.animateScrollToItem(index = 6)
                 }
             })
         }
@@ -71,11 +76,13 @@ fun MovieScreen() {
             MovieRank()
         }
         item {
-
-            SearchMovie(onFilterItemClick = {
+            SearchMovieHead()
+        }
+        stickyHeader {
+            SearchMovieBody(onFilterItemClick = {
                 coroutineScope.launch {
                     // Animate scroll to the 10th item
-                    listState.scrollToItem(index = 4)
+                    listState.scrollToItem(index = 6)
                 }
             })
         }
@@ -175,7 +182,13 @@ fun HitBody() {
                     contentScale = ContentScale.Crop,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = item.name, fontWeight = FontWeight.Bold)
+                Text(
+                    text = item.name,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.body2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 RatingBar(rating = item.rating)
 
@@ -398,47 +411,48 @@ fun MovieRank() {
 }
 
 @Composable
-fun SearchMovie(onFilterItemClick: () -> Unit = {}) {
-    Column(modifier = Modifier.padding(16.dp)) {
+fun SearchMovieHead() {
+    Surface(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
         Text(
             text = "找电影",
             style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(
-                PaddingValues(bottom = 16.dp)
-            )
         )
-        FilterBar(onFilterItemClick)
     }
 }
 
 @Composable
-fun FilterBar(onFilterItemClick: () -> Unit = {}) {
+fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
     var current by remember {
         mutableStateOf(-1)
     }
-    Column {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            CanPlay()
-            filterList.forEachIndexed { index, filterItem ->
-                FilterItem(
-                    data = filterItem,
-                    selected = current == index,
-                    onClick = {
-                        current = if (current == index) {
-                            -1
-                        } else {
-                            onFilterItemClick()
-                            index
-                        }
-                    },
-                    onDismissRequest = {
-                        current = -1
-                    },
-                )
+    Surface {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                CanPlay()
+                filterList.forEachIndexed { index, filterItem ->
+                    FilterItem(
+                        data = filterItem,
+                        selected = current == index,
+                        onClick = {
+                            current = if (current == index) {
+                                -1
+                            } else {
+                                onFilterItemClick()
+                                index
+                            }
+                        },
+                        onDismissRequest = {
+                            current = -1
+                        },
+                    )
+                }
+                FilterMore()
             }
-            FilterMore()
-        }
 
+        }
     }
 }
 
@@ -503,9 +517,7 @@ fun FilterItem(
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable(onClick = onDismissRequest)
-                    ) {
-
-                    }
+                    ) {}
                 }
                 Card(
                     modifier = Modifier
@@ -567,15 +579,49 @@ fun FilterMore() {
     )
 }
 
-@Preview(showBackground = true, widthDp = 420)
 @Composable
-fun SearchMoviePreview() {
-    DoubanMovieTheme {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            SearchMovie()
+fun TabBar() {
+    val items = listOf(
+        "电影", "电视",
+        "读书", "连载",
+        "音乐", "同城"
+    )
+    var currentIndex by remember {
+        mutableStateOf(0)
+    }
+    TabRow(
+        selectedTabIndex = currentIndex,
+        backgroundColor = MaterialTheme.colors.background
+    ) {
+        items.forEachIndexed { index, item ->
+            Tab(
+                modifier = Modifier.height(48.dp),
+                selected = currentIndex == index,
+                onClick = { currentIndex = index }) {
+                Text(text = item)
+            }
         }
     }
 }
+
+
+@Preview(showBackground = true)
+@Composable
+fun TabBarPreview() {
+    DoubanMovieTheme {
+        TabBar()
+    }
+}
+
+//@Preview(showBackground = true, widthDp = 420)
+//@Composable
+//fun SearchMoviePreview() {
+//    DoubanMovieTheme {
+//        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+//            SearchMovie()
+//        }
+//    }
+//}
 
 @Preview(showBackground = true, widthDp = 420)
 @Composable

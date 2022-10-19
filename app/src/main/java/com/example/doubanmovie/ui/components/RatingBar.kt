@@ -32,7 +32,7 @@ fun RatingBar(
     starIcon: ImageVector = Icons.Filled.Star,
     ratedStarsColor: Color = MaterialTheme.colors.secondary,
     unRatedStarsColor: Color = Color.LightGray,
-    spaceBetween: Dp = 0.dp
+    spaceBetween: Dp = (-2).dp
 ) {
     if (rating == null) {
         return Text(

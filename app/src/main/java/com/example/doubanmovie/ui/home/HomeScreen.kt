@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.doubanmovie.R
 import com.example.doubanmovie.ui.movie.MovieScreen
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
@@ -23,7 +25,6 @@ import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 fun HomeScreen() {
     Column {
         SearchBar()
-        TabBar()
         MovieScreen()
     }
 }
@@ -39,27 +40,24 @@ fun SearchBar() {
         ) {
             Icon(Icons.Filled.Menu, "menu")
         }
-        TextField(
-            value = "",
-            onValueChange = {},
+        Surface(
             modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(50),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent
-            ),
-            placeholder = {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Filled.Search, "search")
-                    Text(stringResource(R.string.placeholder_search))
-                }
-            },
-        )
+            shape = RoundedCornerShape(8.dp),
+            color = Color.LightGray.copy(0.3f),
+            contentColor = Color.Gray,
+        ) {
+            Row(
+                modifier = Modifier.padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                )
+                Text("抬头, 看树", style = MaterialTheme.typography.body2)
+            }
+        }
         IconButton(
             onClick = { }
         ) {
