@@ -42,6 +42,8 @@ import com.example.doubanmovie.R
 import com.example.doubanmovie.data.MovieItem
 import com.example.doubanmovie.ui.components.RatingBar
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
+import com.example.doubanmovie.ui.theme.Grey100
+import com.example.doubanmovie.ui.theme.Grey50
 import kotlinx.coroutines.launch
 
 
@@ -85,18 +87,6 @@ fun MovieScreen() {
                     listState.scrollToItem(index = 6)
                 }
             })
-        }
-        item {
-
-            MovieRank()
-        }
-        item {
-
-            MovieRank()
-        }
-        item {
-
-            MovieRank()
         }
         item {
 
@@ -425,10 +415,17 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
     var current by remember {
         mutableStateOf(-1)
     }
+    val tagList = listOf(
+        "公路", "时空", "宝莱坞", "童话",
+        "浪漫", "哥特", "梦想", "足球",
+        "怪物", "唯美", "民国", "神话",
+    )
     Surface {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 CanPlay()
@@ -451,7 +448,29 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
                 }
                 FilterMore()
             }
-
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                items(tagList) { item ->
+                    Surface(
+                        color = Grey100,
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Text(
+                            text = item,
+                            style = MaterialTheme.typography.caption,
+                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                        )
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
         }
     }
 }
@@ -604,6 +623,14 @@ fun TabBar() {
     }
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun SearchMovieBodyPreview() {
+    DoubanMovieTheme {
+        SearchMovieBody()
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
