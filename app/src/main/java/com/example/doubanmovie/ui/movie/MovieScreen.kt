@@ -29,6 +29,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,11 +42,17 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import com.example.doubanmovie.R
+import com.example.doubanmovie.data.MovieComment
 import com.example.doubanmovie.data.MovieItem
 import com.example.doubanmovie.ui.components.RatingBar
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 import com.example.doubanmovie.ui.theme.Grey100
-import com.example.doubanmovie.ui.theme.Grey50
+import com.example.doubanmovie.ui.theme.Grey200
+import com.google.accompanist.flowlayout.FlowRow
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 
@@ -89,8 +98,7 @@ fun MovieScreen() {
             })
         }
         item {
-
-            MovieRank()
+            SearchMovieList()
         }
     }
 }
@@ -505,7 +513,7 @@ fun CanPlay() {
 @Composable
 fun FilterItem(
     selected: Boolean = false,
-    data: FilterItem,
+    data: FilterData,
     onClick: () -> Unit = {},
     onDismissRequest: () -> Unit = {}
 ) {
@@ -624,6 +632,154 @@ fun TabBar() {
 }
 
 
+@Composable
+fun SearchMovieList() {
+    Column {
+        searchMovieList.forEach { item ->
+            SearchMovieItem(item = item)
+        }
+    }
+}
+
+@Composable
+fun SearchMovieItem(item: MovieItem) {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .height(150.dp)
+        ) {
+            AsyncImage(
+                model = item.image,
+                placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
+                fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
+                error = painterResource(R.drawable.ic_movie_subjectcover_default),
+                contentDescription = null,
+                modifier = Modifier
+                    .width(110.dp)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(10.dp)),
+                contentScale = ContentScale.Crop,
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            PhotoPager(item.photos)
+        }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(end = 50.dp)) {
+                Text(
+                    text = "${item.name} (${item.year})",
+                    style = MaterialTheme.typography.subtitle1
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                RatingBar(rating = item.rating)
+                Text(
+                    text = item.subtitle,
+                    style = MaterialTheme.typography.caption,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.Gray,
+                    maxLines = 1,
+                )
+            }
+            MovieFavorite(Modifier.align(Alignment.TopEnd), favorite = item.favorite)
+        }
+        Column {
+            MovieComment(item.comment)
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            MovieTags(tags = item.tags)
+        }
+    }
+}
+
+@Composable
+fun MovieFavorite(modifier: Modifier = Modifier, favorite: Boolean = false) {
+    if (favorite) {
+        Surface(modifier = modifier, contentColor = MaterialTheme.colors.secondary) {
+            Column {
+                Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = null)
+                Text("想看", style = MaterialTheme.typography.caption, softWrap = false)
+            }
+        }
+    } else {
+        Surface(modifier = modifier, contentColor = Color.Gray) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Outlined.Done, contentDescription = null)
+                Text(text = "已想看", style = MaterialTheme.typography.caption, softWrap = false)
+            }
+        }
+    }
+}
+
+@Composable
+fun MovieTags(tags: List<String>) {
+    FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
+        tags.forEach { item ->
+            Surface(color = Grey200, shape = RoundedCornerShape(4.dp)) {
+                Row(
+                    modifier = Modifier.padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = item, style = MaterialTheme.typography.caption)
+                    Icon(
+                        modifier = Modifier.size(16.dp),
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MovieComment(comment: MovieComment) {
+    val text = buildAnnotatedString {
+        append(AnnotatedString(comment.content))
+        append(AnnotatedString(" — ${comment.user}", spanStyle = SpanStyle(Color.Gray)))
+    }
+    Text(text = text, style = MaterialTheme.typography.body2)
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun PhotoPager(photos: List<String>) {
+    val pagerState = rememberPagerState()
+    Box {
+        HorizontalPager(
+            count = photos.size,
+            state = pagerState,
+            modifier = Modifier.clip(RoundedCornerShape(10.dp))
+        ) { page ->
+            AsyncImage(
+                model = photos[page],
+                placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
+                fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
+                error = painterResource(R.drawable.ic_movie_subjectcover_default),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            activeColor = MaterialTheme.colors.background,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SearchMovieListPreview() {
+    DoubanMovieTheme {
+        SearchMovieList()
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun SearchMovieBodyPreview() {
@@ -692,10 +848,10 @@ fun MovieScreenPreview() {
     }
 }
 
-data class FilterItem(val name: String, val items: List<String>)
+data class FilterData(val name: String, val items: List<String>)
 
 private val filterList = listOf(
-    FilterItem(
+    FilterData(
         "类型",
         listOf(
             "全部类型", "喜剧", "爱情", "动作",
@@ -706,7 +862,7 @@ private val filterList = listOf(
             "西部", "纪录片", "短片"
         )
     ),
-    FilterItem(
+    FilterData(
         "地区",
         listOf(
             "全部地区", "华语", "欧美", "韩国",
@@ -717,7 +873,7 @@ private val filterList = listOf(
             "瑞典", "巴西", "丹麦"
         )
     ),
-    FilterItem(
+    FilterData(
         "排序",
         listOf(
             "综合排序", "近期热度", "首映时间", "高分优先",
@@ -876,5 +1032,160 @@ private val movieList = listOf(
         "海的尽头是草原",
         "https://img1.doubanio.com/view/photo/m_ratio_poster/public/p2877827228.webp",
         rating = 7.2f
+    ),
+)
+
+private val searchMovieList = listOf(
+    MovieItem(
+        name = "肖申克的救赎",
+        image = "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.webp",
+        rating = 9.7f,
+        favorite = false,
+        year = "1994",
+        comment = MovieComment(
+            content = "恐惧让你沦为囚犯，希望让你重获自由。——《肖申克的救赎》",
+            user = "如小果"
+        ),
+        subtitle = "1994 / 美国 / 犯罪 剧情 / 弗兰克·德拉邦特 / 蒂姆·罗宾斯 摩根·弗里曼",
+        tags = listOf("美国 自由 人生", "奥斯卡金像奖 最佳摄影 获奖作品"),
+        photos = listOf(
+            "https://img3.doubanio.com/view/photo/m/public/p456482220.webp",
+            "https://img3.doubanio.com/view/photo/m/public/p490576110.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p825401501.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p490577287.webp"
+        )
+    ),
+    MovieItem(
+        name = "千与千寻",
+        image = "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.webp",
+        rating = 9.4f,
+        favorite = true,
+        year = "2001",
+        comment = MovieComment(
+            content = "每次看这些神作的时候想到这是动画片这是一群牛人一笔一笔画出来的,就觉得漏看掉一帧都实在是对不起他们啊",
+            user = "zing"
+        ),
+        subtitle = "2001 / 日本 / 剧情 动画 奇幻 / 宫崎骏 / 柊瑠美 入野自由",
+        tags = listOf("日本 动画 温情", "英国电影学院奖 最佳非英语片 获奖作品"),
+        photos = listOf(
+            "https://img9.doubanio.com/view/photo/m/public/p2512318945.webp",
+            "https://img9.doubanio.com/view/photo/m/public/p2563777035.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p2181503417.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p2512318939.webp"
+        )
+    ),
+    MovieItem(
+        name = "阿甘正传",
+        image = "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.webp",
+        rating = 9.5f,
+        favorite = false,
+        year = "1994",
+        comment = MovieComment(
+            content = "羡慕珍妮，不管她多么叛逆、落魄、堕落，永远有阿甘在等她回来",
+            user = "今天小熊不吃糖"
+        ),
+        subtitle = "1994 / 美国 / 剧情 爱情 / 罗伯特·泽米吉斯 / 汤姆·汉克斯 罗宾·怀特",
+        tags = listOf("美国 人生 温情", "奥斯卡金像奖 最佳音响 获奖作品"),
+        photos = listOf(
+            "https://img2.doubanio.com/view/photo/m/public/p1484731332.webp",
+            "https://img9.doubanio.com/view/photo/m/public/p1484731424.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p825974951.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p825966139.webp"
+        )
+    ),
+    MovieItem(
+        name = "楚门的世界",
+        image = "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p479682972.webp",
+        rating = 9.3f,
+        favorite = false,
+        year = "1998",
+        comment = MovieComment(
+            content = "如果再也不能见到你，祝你早安，午安和晚安。",
+            user = "影志"
+        ),
+        subtitle = "1998 / 美国 / 剧情 科幻 / 彼得·威尔 / 金·凯瑞 劳拉·琳妮",
+        tags = listOf("美国 人生 自由", "金球奖 最佳导演 获奖作品"),
+        photos = listOf(
+            "https://img9.doubanio.com/view/photo/m/public/p764864325.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p2614864522.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p2614740719.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p2614740691.webp"
+        )
+    ),
+    MovieItem(
+        name = "三傻大闹宝莱坞",
+        image = "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p579729551.webp",
+        rating = 9.2f,
+        favorite = true,
+        year = "2009",
+        comment = MovieComment(
+            content = "看了这部电影是我2010年最幸运的一件事 力荐！",
+            user = "私喜"
+        ),
+        subtitle = "2009 / 印度 / 剧情 喜剧 爱情 / 拉吉库马尔·希拉尼 / 阿米尔·汗 卡琳娜·卡普尔",
+        tags = listOf("印度 喜剧 搞笑", "日本电影学院奖 最佳外语片 获奖作品"),
+        photos = listOf(
+            "https://img2.doubanio.com/view/photo/m/public/p2571368413.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p1303106712.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p579722647.webp",
+            "https://img9.doubanio.com/view/photo/m/public/p1303107905.webp"
+        )
+    ),
+    MovieItem(
+        name = "海上钢琴师",
+        image = "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2574551676.webp",
+        rating = 9.3f,
+        favorite = false,
+        year = "1998",
+        comment = MovieComment(
+            content = "我总觉得这是一个真实的故事，因为他的懦弱，懦弱得真实。",
+            user = "Zuschauerin"
+        ),
+        subtitle = "1998 / 意大利 / 剧情 音乐 / 朱塞佩·托纳多雷 / 蒂姆·罗斯 普路特·泰勒·文斯",
+        tags = listOf("意大利 人生 音乐", "金球奖 最佳原创配乐 获奖作品"),
+        photos = listOf(
+            "https://img2.doubanio.com/view/photo/m/public/p2581352902.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p2574724747.webp",
+            "https://img3.doubanio.com/view/photo/m/public/p2573277220.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p826011731.webp"
+        )
+    ),
+    MovieItem(
+        name = "阿凡达",
+        image = "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2634997853.webp",
+        rating = 8.8f,
+        favorite = false,
+        year = "2009",
+        comment = MovieComment(
+            content = "钉子户 大战 城管 in 3D",
+            user = "Menphis"
+        ),
+        subtitle = "2009 / 美国 / 动作 科幻 冒险 / 詹姆斯·卡梅隆 / 萨姆·沃辛顿 佐伊·索尔达娜",
+        tags = listOf("美国 科幻 史诗", "奥斯卡金像奖 最佳原创配乐 获奖作品"),
+        photos = listOf(
+            "https://img9.doubanio.com/view/photo/m/public/p595308795.webp",
+            "https://img9.doubanio.com/view/photo/m/public/p455284965.webp",
+            "https://img2.doubanio.com/view/photo/m/public/p595295073.webp",
+            "https://img9.doubanio.com/view/photo/m/public/p595258686.webp"
+        )
+    ),
+    MovieItem(
+        name = "白日梦想家",
+        image = "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2160195181.webp",
+        rating = 8.5f,
+        favorite = false,
+        year = "2013",
+        comment = MovieComment(
+            content = "在片中《LIFE》杂志闭刊号封面出现的那一刻，我完全被击穿了。",
+            user = "仙剑风晨"
+        ),
+        subtitle = "2013 / 美国 英国 / 剧情 喜剧 冒险 / 本·斯蒂勒 / 本·斯蒂勒 克里斯汀·韦格",
+        tags = listOf("美国 冒险 人生"),
+        photos = listOf(
+            "https://img1.doubanio.com/view/photo/m/public/p2176074878.webp",
+            "https://img9.doubanio.com/view/photo/m/public/p2164194895.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p2164057058.webp",
+            "https://img1.doubanio.com/view/photo/m/public/p2159273167.webp"
+        )
     ),
 )

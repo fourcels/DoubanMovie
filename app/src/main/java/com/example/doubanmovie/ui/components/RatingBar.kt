@@ -60,7 +60,6 @@ fun RatingBar(
         Text(
             text = rating.toString(),
             color = ratedStarsColor,
-            fontWeight = FontWeight.Bold,
         )
     }
 }
