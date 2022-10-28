@@ -167,18 +167,32 @@ fun HitBody() {
         item {}
         items(movieList) { item ->
             Column {
-                AsyncImage(
-                    model = item.image,
-                    placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                    fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                    error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(110.dp)
-                        .height(160.dp)
-                        .clip(RoundedCornerShape(10.dp)),
-                    contentScale = ContentScale.Crop,
-                )
+                Box(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
+                    AsyncImage(
+                        model = item.image,
+                        placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
+                        fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
+                        error = painterResource(R.drawable.ic_movie_subjectcover_default),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(160.dp),
+                        contentScale = ContentScale.Crop,
+                    )
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .clip(RoundedCornerShape(bottomEnd = 8.dp)),
+                        color = Color.Black.copy(alpha = 0.3f),
+                        contentColor = Color.White,
+                    ) {
+                        Icon(
+                            modifier = Modifier.padding(2.dp),
+                            imageVector = if (item.favorite) Icons.Outlined.Done else Icons.Outlined.FavoriteBorder,
+                            contentDescription = null
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = item.name,
@@ -600,7 +614,7 @@ class CustomPopupPositionProvider(
 @Composable
 fun FilterMore() {
     Icon(
-        painterResource(id = R.drawable.ic_filter),
+        Icons.Outlined.FilterAlt,
         contentDescription = null,
         Modifier.size(16.dp),
     )
@@ -666,8 +680,15 @@ fun SearchMovieItem(item: MovieItem) {
             Spacer(modifier = Modifier.width(16.dp))
             PhotoPager(item.photos)
         }
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(end = 50.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(0.dp)
+                    .weight(1f)
+            ) {
                 Text(
                     text = "${item.name} (${item.year})",
                     style = MaterialTheme.typography.subtitle1
@@ -682,7 +703,7 @@ fun SearchMovieItem(item: MovieItem) {
                     maxLines = 1,
                 )
             }
-            MovieFavorite(Modifier.align(Alignment.TopEnd), favorite = item.favorite)
+            MovieFavorite(favorite = item.favorite)
         }
         Column {
             MovieComment(item.comment)
@@ -693,20 +714,23 @@ fun SearchMovieItem(item: MovieItem) {
 }
 
 @Composable
-fun MovieFavorite(modifier: Modifier = Modifier, favorite: Boolean = false) {
-    if (favorite) {
-        Surface(modifier = modifier, contentColor = MaterialTheme.colors.secondary) {
-            Column {
-                Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = null)
-                Text("想看", style = MaterialTheme.typography.caption, softWrap = false)
-            }
-        }
-    } else {
-        Surface(modifier = modifier, contentColor = Color.Gray) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(imageVector = Icons.Outlined.Done, contentDescription = null)
-                Text(text = "已想看", style = MaterialTheme.typography.caption, softWrap = false)
-            }
+fun MovieFavorite(favorite: Boolean = false) {
+    Surface(
+        color = Color.Transparent,
+        contentColor = if (favorite) Color.Gray else MaterialTheme.colors.secondary
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.width(40.dp)
+        ) {
+            Icon(
+                imageVector = if (favorite) Icons.Outlined.Done else Icons.Outlined.FavoriteBorder,
+                contentDescription = null
+            )
+            Text(
+                text = if (favorite) "已想看" else "想看",
+                style = MaterialTheme.typography.caption,
+            )
         }
     }
 }
@@ -986,7 +1010,8 @@ private val movieList = listOf(
     MovieItem(
         "万里归途",
         "https://img9.doubanio.com/view/photo/m_ratio_poster/public/p2881176356.webp",
-        rating = 7.4f
+        rating = 7.4f,
+        favorite = true,
     ),
     MovieItem(
         "还是觉得你最好",
