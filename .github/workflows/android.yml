@@ -23,12 +23,21 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleRelease
 
-      - uses: ncipollo/release-action@v1
+      - uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          artifacts: "app/build/outputs/apk/release/*"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
           prerelease: true
-          name: "DoubanMovie"
-          tag: latest
+          title: "DoubanMovie"
+          files: |
+            app/build/outputs/apk/release/*.apk
+
+#      - uses: ncipollo/release-action@v1
+#        with:
+#          artifacts: "app/build/outputs/apk/release/*"
+#          prerelease: true
+#          name: "DoubanMovie"
+#          tag: latest
 
 #    - uses: r0adkll/sign-android-release@v1
 #      name: Sign app APK
