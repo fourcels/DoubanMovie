@@ -27,6 +27,7 @@ jobs:
         with:
           artifacts: "app/build/outputs/apk/release/*"
           prerelease: true
+          tag: latest
 
 #    - uses: r0adkll/sign-android-release@v1
 #      name: Sign app APK
