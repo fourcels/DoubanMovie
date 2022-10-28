@@ -27,6 +27,7 @@ jobs:
         with:
           artifacts: "app/build/outputs/apk/release/*"
           prerelease: true
+          name: "DoubanMovie"
           tag: latest
 
 #    - uses: r0adkll/sign-android-release@v1
