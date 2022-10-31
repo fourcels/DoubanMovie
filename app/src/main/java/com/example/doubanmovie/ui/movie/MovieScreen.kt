@@ -46,8 +46,7 @@ import com.example.doubanmovie.data.MovieComment
 import com.example.doubanmovie.data.MovieItem
 import com.example.doubanmovie.ui.components.RatingBar
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
-import com.example.doubanmovie.ui.theme.Grey100
-import com.example.doubanmovie.ui.theme.Grey200
+import com.example.doubanmovie.ui.theme.LightGrey
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -394,10 +393,9 @@ fun MovieRank() {
         }
         item {
             Surface(
-                color = Color.LightGray.copy(alpha = 0.2f),
-                contentColor = Color.Gray,
                 modifier = Modifier.fillMaxHeight(),
-                shape = RoundedCornerShape(10.dp),
+                color = LightGrey,
+                shape = MaterialTheme.shapes.medium,
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -479,7 +477,8 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
                 }
                 items(tagList) { item ->
                     Surface(
-                        color = Grey100,
+                        modifier = Modifier.fillMaxHeight(),
+                        color = Color.LightGray.copy(0.2f),
                         shape = MaterialTheme.shapes.small,
                     ) {
                         Text(
@@ -573,10 +572,10 @@ fun FilterItem(
                             contentPadding = PaddingValues(12.dp)
                         ) {
                             items(data.items) { item ->
-                                Card(
+                                Surface(
                                     modifier = Modifier.padding(4.dp),
-                                    backgroundColor = Color.LightGray.copy(alpha = 0.2f),
-                                    elevation = 0.dp,
+                                    color = LightGrey,
+                                    shape = MaterialTheme.shapes.small
                                 ) {
                                     Text(
                                         item,
@@ -739,7 +738,7 @@ fun MovieFavorite(favorite: Boolean = false) {
 fun MovieTags(tags: List<String>) {
     FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
         tags.forEach { item ->
-            Surface(color = Grey200, shape = RoundedCornerShape(4.dp)) {
+            Surface(color = LightGrey, shape = MaterialTheme.shapes.small) {
                 Row(
                     modifier = Modifier.padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -1017,11 +1016,6 @@ private val movieList = listOf(
         "还是觉得你最好",
         "https://img2.doubanio.com/view/photo/m_ratio_poster/public/p2879301401.webp",
         rating = 7.6f
-    ),
-    MovieItem(
-        "妈妈！",
-        "https://img2.doubanio.com/view/photo/m_ratio_poster/public/p2879572001.webp",
-        rating = 7.4f
     ),
     MovieItem(
         "平凡英雄",
