@@ -23,38 +23,22 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleRelease
 
+      - uses: ilharp/sign-android-release@v1 # Or use @nightly
+        name: Sign app APK
+        id: sign_app
+        with:
+          releaseDir: app/build/outputs/apk/release
+          signingKey: ${{ secrets.SIGNING_KEY }}
+          keyAlias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          buildToolsVersion: 33.0.0
+
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: true
           title: "DoubanMovie"
-          files: |
-            app/build/outputs/apk/release/*.apk
+          files: ${{steps.sign_app.outputs.signedFile}}
 
-#      - uses: ncipollo/release-action@v1
-#        with:
-#          artifacts: "app/build/outputs/apk/release/*"
-#          prerelease: true
-#          name: "DoubanMovie"
-#          tag: latest
 
-#    - uses: r0adkll/sign-android-release@v1
-#      name: Sign app APK
-#      # ID used to access action output
-#      id: sign_app
-#      with:
-#        releaseDirectory: app/build/outputs/apk/release
-#        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-#        alias: ${{ secrets.ALIAS }}
-#        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-#        keyPassword: ${{ secrets.KEY_PASSWORD }}
-##      env:
-#        # override default build-tools version (29.0.3) -- optional
-##        BUILD_TOOLS_VERSION: "30.0.2"
-#
-#      # Example use of `signedReleaseFile` output -- not needed
-#    - uses: actions/upload-artifact@v3
-#      with:
-#        name: Signed app bundle
-#        path: ${{steps.sign_app.outputs.signedReleaseFile}}
