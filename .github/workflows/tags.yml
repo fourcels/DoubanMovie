@@ -1,8 +1,9 @@
-name: Android CI
+name: "tagged-release"
 
 on:
   push:
-    branches: [ "main" ]
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -36,8 +37,7 @@ jobs:
       - uses: marvinpinto/action-automatic-releases@v1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
+          prerelease: false
           title: "DoubanMovie"
           files: ${{steps.sign_app.outputs.signedFile}}
 
