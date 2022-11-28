@@ -27,7 +27,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -40,10 +39,10 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import coil.compose.AsyncImage
 import com.example.doubanmovie.R
 import com.example.doubanmovie.data.MovieComment
 import com.example.doubanmovie.data.MovieItem
+import com.example.doubanmovie.ui.components.AsyncImage
 import com.example.doubanmovie.ui.components.RatingBar
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 import com.example.doubanmovie.ui.theme.LightGrey
@@ -169,14 +168,9 @@ fun HitBody() {
                 Box(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
                     AsyncImage(
                         model = item.image,
-                        placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                        fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                        error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                        contentDescription = null,
                         modifier = Modifier
                             .width(110.dp)
                             .height(160.dp),
-                        contentScale = ContentScale.Crop,
                     )
                     Surface(
                         modifier = Modifier
@@ -292,15 +286,10 @@ fun ComingMovie() {
                         Spacer(modifier = Modifier.weight(1f))
                         AsyncImage(
                             model = item.image,
-                            placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                            fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                            error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                            contentDescription = null,
                             modifier = Modifier
                                 .width(55.dp)
                                 .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp)),
-                            contentScale = ContentScale.Crop,
                         )
                     }
                 }
@@ -328,13 +317,8 @@ fun MovieRank() {
             ) {
                 AsyncImage(
                     model = item.image,
-                    placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                    fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                    error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                    contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize(),
-                    contentScale = ContentScale.Crop,
                 )
                 Box(
                     modifier = Modifier
@@ -366,15 +350,10 @@ fun MovieRank() {
                                     Text(text = (index + 1).toString())
                                     AsyncImage(
                                         model = movieItem.image,
-                                        placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                                        fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                                        error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                                        contentDescription = null,
                                         modifier = Modifier
                                             .width(30.dp)
                                             .height(42.dp)
                                             .clip(RoundedCornerShape(4.dp)),
-                                        contentScale = ContentScale.Crop,
                                     )
                                     Column {
                                         Text(
@@ -403,7 +382,8 @@ fun MovieRank() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "更\n多",
+                        modifier = Modifier.width(14.dp),
+                        text = "更多",
                         style = MaterialTheme.typography.caption.copy(
                             lineHeight = 14.sp,
                         ),
@@ -470,14 +450,13 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
             }
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             ) {
                 item {
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 items(tagList) { item ->
                     Surface(
-                        modifier = Modifier.fillMaxHeight(),
                         color = Color.LightGray.copy(0.2f),
                         shape = MaterialTheme.shapes.small,
                     ) {
@@ -666,15 +645,10 @@ fun SearchMovieItem(item: MovieItem) {
         ) {
             AsyncImage(
                 model = item.image,
-                placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                contentDescription = null,
                 modifier = Modifier
                     .width(110.dp)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(10.dp)),
-                contentScale = ContentScale.Crop,
             )
             Spacer(modifier = Modifier.width(16.dp))
             PhotoPager(item.photos)
@@ -776,13 +750,8 @@ fun PhotoPager(photos: List<String>) {
         ) { page ->
             AsyncImage(
                 model = photos[page],
-                placeholder = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                fallback = painterResource(id = R.drawable.ic_movie_subjectcover_default),
-                error = painterResource(R.drawable.ic_movie_subjectcover_default),
-                contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize(),
-                contentScale = ContentScale.Crop,
             )
         }
         HorizontalPagerIndicator(
