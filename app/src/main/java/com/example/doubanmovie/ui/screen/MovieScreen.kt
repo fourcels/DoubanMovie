@@ -1,4 +1,4 @@
-package com.example.doubanmovie.ui.movie
+package com.example.doubanmovie.ui.screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateContentSize
@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,9 +56,19 @@ import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 
+@Composable
+fun MovieScreen(onNavigateToDetail: () -> Unit = {}) {
+    Column {
+        SearchBar()
+        MovieBody(onNavigateToDetail)
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MovieScreen() {
+fun MovieBody(
+    onNavigateToDetail: () -> Unit = {},
+) {
     val listState = rememberLazyListState()
     // Remember a CoroutineScope to be able to launch
     val coroutineScope = rememberCoroutineScope()
@@ -74,7 +86,7 @@ fun MovieScreen() {
         }
         item {
 
-            HitTheaters()
+            HitTheaters(onNavigateToDetail = onNavigateToDetail)
         }
         item {
 
@@ -140,10 +152,10 @@ fun NavList(onSearch: () -> Unit = {}) {
 }
 
 @Composable
-fun HitTheaters() {
+fun HitTheaters(onNavigateToDetail: () -> Unit = {}) {
     Column(modifier = Modifier.padding(vertical = 16.dp)) {
         HitHeader()
-        HitBody()
+        HitBody(onNavigateToDetail = onNavigateToDetail)
     }
 }
 
@@ -160,12 +172,17 @@ fun HitHeader() {
 }
 
 @Composable
-fun HitBody() {
+fun HitBody(onNavigateToDetail: () -> Unit = {}) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         item {}
         items(movieList) { item ->
             Column {
-                Box(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(onClick = onNavigateToDetail),
+
+                    ) {
                     AsyncImage(
                         model = item.image,
                         modifier = Modifier
@@ -829,6 +846,43 @@ fun HitTheatersPreview() {
 fun TabListPreview() {
     DoubanMovieTheme {
         NavList()
+    }
+}
+
+@Composable
+fun SearchBar() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        IconButton(
+            onClick = { }
+        ) {
+            Icon(Icons.Filled.Menu, "menu")
+        }
+        Surface(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp),
+            color = Color.LightGray.copy(0.3f),
+            contentColor = Color.Gray,
+        ) {
+            Row(
+                modifier = Modifier.padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                )
+                Text("抬头, 看树", style = MaterialTheme.typography.body2)
+            }
+        }
+        IconButton(
+            onClick = { }
+        ) {
+            Icon(Icons.Filled.MailOutline, "message")
+        }
     }
 }
 
