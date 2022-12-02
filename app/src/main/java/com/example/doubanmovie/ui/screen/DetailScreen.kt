@@ -2,39 +2,41 @@ package com.example.doubanmovie.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.doubanmovie.data.*
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     onBackPressed: () -> Unit = {}
 ) {
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
             .background(
                 Brush.verticalGradient(
                     0.1f to Color(0xFF723B2C),
                     0.4f to Color(0xFF4C271D),
                 )
             ),
-        backgroundColor = Color.Transparent,
+        containerColor = Color.Transparent,
         topBar = {
-            TopAppBar(
-                modifier = Modifier.statusBarsPadding(),
+            CenterAlignedTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
-                        Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Outlined.ArrowBackIosNew,
+                            contentDescription = null
+                        )
                     }
                 },
                 title = {
@@ -45,14 +47,22 @@ fun DetailScreen(
                         Icon(imageVector = Icons.Outlined.MoreHoriz, contentDescription = null)
                     }
                 },
-                backgroundColor = Color.Transparent,
-                elevation = 0.dp
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         }
 
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            Text(text = "text")
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+        ) {
+
+            items(100) {
+                Text("Android")
+
+            }
         }
     }
 }
@@ -61,8 +71,13 @@ fun DetailScreen(
 @Preview(showBackground = true, widthDp = 420)
 @Composable
 fun DetailScreenPreview() {
-    DoubanMovieTheme {
-        DetailScreen()
+    DoubanMovieTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            DetailScreen()
+        }
     }
 }
 

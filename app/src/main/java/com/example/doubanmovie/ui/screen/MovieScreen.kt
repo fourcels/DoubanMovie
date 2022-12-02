@@ -16,16 +16,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -113,6 +113,7 @@ fun MovieBody(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavList(onSearch: () -> Unit = {}) {
     val navList = listOf(
@@ -128,22 +129,23 @@ fun NavList(onSearch: () -> Unit = {}) {
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         navList.forEachIndexed { index, navItem ->
-            Button(
+            ElevatedCard(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.background
-                ),
+                    .weight(1f),
                 shape = RoundedCornerShape(20),
                 onClick = if (index == 0) onSearch else ({})
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Image(painter = painterResource(navItem.icon), null)
                     Text(
                         text = navItem.name,
-                        style = MaterialTheme.typography.caption,
-                        modifier = Modifier.alpha(ContentAlpha.medium)
+                        style = MaterialTheme.typography.bodySmall,
+//                        modifier = Modifier.alpha(ContentAlpha.medium)
                     )
                 }
             }
@@ -207,7 +209,7 @@ fun HitBody(onNavigateToDetail: () -> Unit = {}) {
                 Text(
                     text = item.name,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -225,7 +227,7 @@ fun HitBody(onNavigateToDetail: () -> Unit = {}) {
 fun ShowMore() {
     val total = 33
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text = "全部$total", style = MaterialTheme.typography.body2)
+        Text(text = "全部$total", style = MaterialTheme.typography.bodySmall)
         Icon(
             imageVector = Icons.Filled.KeyboardArrowRight,
             contentDescription = null,
@@ -261,13 +263,14 @@ fun HitTabbar() {
 
                 Text(
                     text = item,
-                    style = MaterialTheme.typography.h5
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComingMovie() {
     Row(
@@ -275,16 +278,13 @@ fun ComingMovie() {
         modifier = Modifier.padding(16.dp)
     ) {
         comingMovieList.forEach { item ->
-            Button(
-                onClick = { /*TODO*/ },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MaterialTheme.colors.background
-                ),
-                modifier = Modifier.weight(1f)
+            ElevatedCard(
+                modifier = Modifier.weight(1f),
+                onClick = {}
             ) {
-                Column {
+                Column(modifier = Modifier.padding(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = item.title, style = MaterialTheme.typography.h6)
+                        Text(text = item.title, style = MaterialTheme.typography.bodySmall)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
                             imageVector = Icons.Outlined.KeyboardArrowRight,
@@ -296,8 +296,8 @@ fun ComingMovie() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = item.desc,
-                            style = MaterialTheme.typography.caption,
-                            modifier = Modifier.alpha(ContentAlpha.medium),
+                            style = MaterialTheme.typography.bodySmall,
+//                            modifier = Modifier.alpha(ContentAlpha.medium),
                         )
 
                         Spacer(modifier = Modifier.weight(1f))
@@ -354,9 +354,9 @@ fun MovieRank() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(text = item.title, style = MaterialTheme.typography.h6)
+                            Text(text = item.title, style = MaterialTheme.typography.bodySmall)
                             Spacer(modifier = Modifier.weight(1f))
-                            Text(text = "豆瓣榜单", style = MaterialTheme.typography.body2)
+                            Text(text = "豆瓣榜单", style = MaterialTheme.typography.bodySmall)
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             item.items.forEachIndexed { index, movieItem ->
@@ -401,9 +401,7 @@ fun MovieRank() {
                     Text(
                         modifier = Modifier.width(14.dp),
                         text = "更多",
-                        style = MaterialTheme.typography.caption.copy(
-                            lineHeight = 14.sp,
-                        ),
+                        style = MaterialTheme.typography.bodySmall,
                     )
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowRight,
@@ -422,7 +420,7 @@ fun SearchMovieHead() {
     Surface(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
         Text(
             text = "找电影",
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }
@@ -479,7 +477,7 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
                     ) {
                         Text(
                             text = item,
-                            style = MaterialTheme.typography.caption,
+                            style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                         )
                     }
@@ -509,12 +507,12 @@ fun CanPlay() {
         Icon(
             imageVector = Icons.Outlined.PlayCircleOutline, contentDescription = "can play",
             modifier = Modifier.size(16.dp),
-            tint = if (selected) MaterialTheme.colors.primary else Color.Red,
+            tint = if (selected) MaterialTheme.colorScheme.primary else Color.Red,
         )
         Text(
             text = "可播放",
-            style = MaterialTheme.typography.caption,
-            color = if (selected) MaterialTheme.colors.primary else LocalContentColor.current
+            style = MaterialTheme.typography.bodySmall,
+            color = if (selected) MaterialTheme.colorScheme.primary else LocalContentColor.current
         )
     }
 }
@@ -535,7 +533,7 @@ fun FilterItem(
                 onClick = onClick,
             )
         ) {
-            Text(text = data.name, style = MaterialTheme.typography.caption)
+            Text(text = data.name, style = MaterialTheme.typography.bodySmall)
             Icon(
                 imageVector = if (selected) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                 contentDescription = null,
@@ -563,9 +561,10 @@ fun FilterItem(
                 ) {
                     if (selected) {
                         LazyVerticalGrid(
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
                             columns = GridCells.Fixed(4),
                             userScrollEnabled = false,
-                            contentPadding = PaddingValues(12.dp)
+                            contentPadding = PaddingValues(12.dp),
                         ) {
                             items(data.items) { item ->
                                 Surface(
@@ -576,7 +575,7 @@ fun FilterItem(
                                     Text(
                                         item,
                                         textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.body2,
+                                        style = MaterialTheme.typography.bodySmall,
                                         modifier = Modifier.padding(vertical = 8.dp)
                                     )
                                 }
@@ -627,7 +626,15 @@ fun TabBar() {
     }
     TabRow(
         selectedTabIndex = currentIndex,
-        backgroundColor = MaterialTheme.colors.background
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                Modifier.tabIndicatorOffset(tabPositions[currentIndex]),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
     ) {
         items.forEachIndexed { index, item ->
             Tab(
@@ -681,13 +688,13 @@ fun SearchMovieItem(item: MovieItem) {
             ) {
                 Text(
                     text = "${item.name} (${item.year})",
-                    style = MaterialTheme.typography.subtitle1
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 RatingBar(rating = item.rating)
                 Text(
                     text = item.subtitle,
-                    style = MaterialTheme.typography.caption,
+                    style = MaterialTheme.typography.bodySmall,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.Gray,
                     maxLines = 1,
@@ -707,7 +714,7 @@ fun SearchMovieItem(item: MovieItem) {
 fun MovieFavorite(favorite: Boolean = false) {
     Surface(
         color = Color.Transparent,
-        contentColor = if (favorite) Color.Gray else MaterialTheme.colors.secondary
+        contentColor = if (favorite) Color.Gray else MaterialTheme.colorScheme.secondary
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -719,7 +726,7 @@ fun MovieFavorite(favorite: Boolean = false) {
             )
             Text(
                 text = if (favorite) "已想看" else "想看",
-                style = MaterialTheme.typography.caption,
+                style = MaterialTheme.typography.bodySmall,
             )
         }
     }
@@ -734,7 +741,7 @@ fun MovieTags(tags: List<String>) {
                     modifier = Modifier.padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = item, style = MaterialTheme.typography.caption)
+                    Text(text = item, style = MaterialTheme.typography.bodySmall)
                     Icon(
                         modifier = Modifier.size(16.dp),
                         imageVector = Icons.Outlined.KeyboardArrowRight,
@@ -752,7 +759,7 @@ fun MovieComment(comment: MovieComment) {
         append(AnnotatedString(comment.content))
         append(AnnotatedString(" — ${comment.user}", spanStyle = SpanStyle(Color.Gray)))
     }
-    Text(text = text, style = MaterialTheme.typography.body2)
+    Text(text = text, style = MaterialTheme.typography.bodySmall)
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -773,13 +780,51 @@ fun PhotoPager(photos: List<String>) {
         }
         HorizontalPagerIndicator(
             pagerState = pagerState,
-            activeColor = MaterialTheme.colors.background,
+            activeColor = MaterialTheme.colorScheme.background,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
         )
     }
 }
+
+@Composable
+fun SearchBar() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        IconButton(
+            onClick = { }
+        ) {
+            Icon(Icons.Filled.Menu, "menu")
+        }
+        Surface(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp),
+            color = Color.LightGray.copy(0.3f),
+            contentColor = Color.Gray,
+        ) {
+            Row(
+                modifier = Modifier.padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                )
+                Text("抬头, 看树", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        IconButton(
+            onClick = { }
+        ) {
+            Icon(Icons.Filled.MailOutline, "message")
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
@@ -849,42 +894,6 @@ fun TabListPreview() {
     }
 }
 
-@Composable
-fun SearchBar() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        IconButton(
-            onClick = { }
-        ) {
-            Icon(Icons.Filled.Menu, "menu")
-        }
-        Surface(
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(8.dp),
-            color = Color.LightGray.copy(0.3f),
-            contentColor = Color.Gray,
-        ) {
-            Row(
-                modifier = Modifier.padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = null,
-                )
-                Text("抬头, 看树", style = MaterialTheme.typography.body2)
-            }
-        }
-        IconButton(
-            onClick = { }
-        ) {
-            Icon(Icons.Filled.MailOutline, "message")
-        }
-    }
-}
 
 @Preview(showBackground = true, widthDp = 420)
 @Composable
