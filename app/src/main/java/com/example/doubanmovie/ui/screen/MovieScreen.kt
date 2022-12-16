@@ -39,7 +39,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.example.doubanmovie.R
 import com.example.doubanmovie.data.MovieComment
@@ -455,13 +454,62 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
                                 onFilterItemClick()
                                 index
                             }
-                        },
-                        onDismissRequest = {
-                            current = -1
-                        },
+                        }
                     )
                 }
                 FilterMore()
+            }
+            Box {
+                if (current >= 0) {
+                    val items = filterList[current].items
+                    Popup(
+                        alignment = Alignment.TopStart,
+                        properties = PopupProperties(
+                            clippingEnabled = false
+                        )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Black.copy(alpha = 0.1f))
+                                .clickable {
+                                    current = -1
+                                },
+                        ) {}
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateContentSize(),
+                            shape = RoundedCornerShape(
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        ) {
+                            LazyVerticalGrid(
+                                modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                                columns = GridCells.Fixed(4),
+                                userScrollEnabled = false,
+                                contentPadding = PaddingValues(12.dp),
+                            ) {
+                                items(items) { item ->
+                                    Surface(
+                                        modifier = Modifier.padding(4.dp),
+                                        color = LightGrey,
+                                        shape = MaterialTheme.shapes.small
+                                    ) {
+                                        Text(
+                                            item,
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
             }
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -522,7 +570,6 @@ fun FilterItem(
     selected: Boolean = false,
     data: FilterData,
     onClick: () -> Unit = {},
-    onDismissRequest: () -> Unit = {}
 ) {
 
     Column {
@@ -540,70 +587,8 @@ fun FilterItem(
                 Modifier.size(16.dp)
             )
         }
-        Box {
-            Popup(
-                popupPositionProvider = CustomPopupPositionProvider(),
-                properties = PopupProperties(clippingEnabled = false)
-            ) {
-                if (selected) {
-                    Surface(
-                        color = Color.Black.copy(alpha = 0.1f),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable(onClick = onDismissRequest)
-                    ) {}
-                }
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateContentSize(),
-                    shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                ) {
-                    if (selected) {
-                        LazyVerticalGrid(
-                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                            columns = GridCells.Fixed(4),
-                            userScrollEnabled = false,
-                            contentPadding = PaddingValues(12.dp),
-                        ) {
-                            items(data.items) { item ->
-                                Surface(
-                                    modifier = Modifier.padding(4.dp),
-                                    color = LightGrey,
-                                    shape = MaterialTheme.shapes.small
-                                ) {
-                                    Text(
-                                        item,
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier.padding(vertical = 8.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
     }
 }
-
-class CustomPopupPositionProvider(
-    private val x: Int = 0,
-    private val y: Int = 0
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset = IntOffset(
-        0 + x,
-        anchorBounds.top + y
-    )
-}
-
 
 @Composable
 fun FilterMore() {
@@ -714,7 +699,7 @@ fun SearchMovieItem(item: MovieItem) {
 fun MovieFavorite(favorite: Boolean = false) {
     Surface(
         color = Color.Transparent,
-        contentColor = if (favorite) Color.Gray else MaterialTheme.colorScheme.secondary
+        contentColor = if (favorite) Color.Gray else MaterialTheme.colorScheme.primary
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

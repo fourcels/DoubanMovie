@@ -29,7 +29,7 @@ fun RatingBar(
     numberOfStars: Int = 5,
     contentDescription: String = "rating",
     starIcon: ImageVector = Icons.Filled.Star,
-    ratedStarsColor: Color = MaterialTheme.colorScheme.secondary,
+    ratedStarsColor: Color = MaterialTheme.colorScheme.primary,
     unRatedStarsColor: Color = Color.LightGray,
     spaceBetween: Dp = (-2).dp
 ) {
