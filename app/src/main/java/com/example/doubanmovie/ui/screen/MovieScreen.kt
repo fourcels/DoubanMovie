@@ -489,7 +489,11 @@ fun SearchMovieBody(onFilterItemClick: () -> Unit = {}) {
                                 modifier = Modifier.background(MaterialTheme.colorScheme.background),
                                 columns = GridCells.Fixed(4),
                                 userScrollEnabled = false,
-                                contentPadding = PaddingValues(12.dp),
+                                contentPadding = PaddingValues(
+                                    start = 12.dp,
+                                    end = 12.dp,
+                                    bottom = 12.dp
+                                ),
                             ) {
                                 items(items) { item ->
                                     Surface(
@@ -883,8 +887,13 @@ fun TabListPreview() {
 @Preview(showBackground = true, widthDp = 420)
 @Composable
 fun MovieScreenPreview() {
-    DoubanMovieTheme {
-        MovieScreen()
+    DoubanMovieTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            MovieScreen()
+        }
     }
 }
 
