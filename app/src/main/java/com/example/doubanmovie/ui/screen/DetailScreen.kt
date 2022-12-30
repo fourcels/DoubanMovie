@@ -1,5 +1,6 @@
 package com.example.doubanmovie.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +19,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
@@ -26,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import com.example.doubanmovie.R
 import com.example.doubanmovie.data.*
 import com.example.doubanmovie.ui.components.AsyncImage
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
@@ -78,6 +82,9 @@ fun DetailScreen(
             }
             item {
                 DoubanRating()
+            }
+            item {
+                MovieVenders()
             }
         }
     }
@@ -294,11 +301,11 @@ fun RatingScore(
 @Composable
 fun RatingStar(starCount: Int) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy((-4).dp),
+        horizontalArrangement = Arrangement.spacedBy((-2).dp),
     ) {
         for (star in 1..starCount) {
             Icon(
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(14.dp),
                 imageVector = Icons.Outlined.Star, contentDescription = null,
                 tint = Color.LightGray
             )
@@ -321,7 +328,8 @@ fun RatingItem(starCount: Int, progress: Float) {
         LinearProgressIndicator(
             modifier = Modifier
                 .weight(1f)
-                .height(10.dp),
+                .height(8.dp)
+                .clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)),
             progress = progress,
             trackColor = Color.White.copy(alpha = 0.2f)
         )
@@ -405,6 +413,49 @@ fun DoubanRating() {
     }
 }
 
+
+@Composable
+fun MovieVenders() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_playable),
+                    contentDescription = null,
+                )
+                Text(text = "播放源", style = MaterialTheme.typography.bodyLarge)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    movieDetail.vendorIcons.forEach { item ->
+                        AsyncImage(
+                            model = item, modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp)
+                        )
+                    }
+                }
+                Icon(
+                    Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.width(16.dp)
+                )
+            }
+        }
+        Divider(
+            modifier = Modifier.padding(vertical = 16.dp),
+            thickness = 0.5.dp,
+            color = Color.White.copy(alpha = 0.5f)
+        )
+    }
+}
 
 @Preview(showBackground = true, widthDp = 420)
 @Composable
