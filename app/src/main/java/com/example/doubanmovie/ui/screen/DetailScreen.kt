@@ -1,13 +1,17 @@
 package com.example.doubanmovie.ui.screen
 
+import android.graphics.Paint.Style
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.*
@@ -17,14 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -32,6 +39,7 @@ import androidx.compose.ui.unit.em
 import com.example.doubanmovie.R
 import com.example.doubanmovie.data.*
 import com.example.doubanmovie.ui.components.AsyncImage
+import com.example.doubanmovie.ui.components.VideoView
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +93,9 @@ fun DetailScreen(
             }
             item {
                 MovieVenders()
+            }
+            item {
+                Content()
             }
         }
     }
@@ -450,10 +461,252 @@ fun MovieVenders() {
             }
         }
         Divider(
-            modifier = Modifier.padding(vertical = 16.dp),
+            modifier = Modifier.padding(top = 16.dp),
             thickness = 0.5.dp,
             color = Color.White.copy(alpha = 0.5f)
         )
+    }
+}
+
+@Composable
+fun Content() {
+    Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+        SubjectList(list = movieDetail.subjectCollections)
+        Introduction(intro = movieDetail.intro)
+        CreditList(list = movieDetail.credits)
+        Trailer(
+            trailer = movieDetail.trailer,
+            videos = movieDetail.videos,
+            photos = movieDetail.photos
+        )
+    }
+}
+
+@Composable
+fun Trailer(trailer: Video, videos: List<Video>, photos: List<String>) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "预告片 / 剧照", style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "全部889",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.alpha(ContentAlpha.medium)
+                )
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        LazyRow {
+            item {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    VideoView(
+                        modifier = Modifier
+                            .width(250.dp)
+                            .height(160.dp),
+                        coverUrl = trailer.coverUrl
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(4.dp),
+                            shape = RoundedCornerShape(2.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp),
+                                text = "预告片",
+                                color = Color.White,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                    videos.forEach { item ->
+                        VideoView(
+                            modifier = Modifier
+                                .width(250.dp)
+                                .height(160.dp),
+                            coverUrl = item.coverUrl
+                        ) {
+                            Surface(
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(4.dp),
+                                shape = RoundedCornerShape(2.dp),
+                                color = Color.Black,
+                            ) {
+                                Text(
+                                    modifier = Modifier
+                                        .padding(horizontal = 4.dp),
+                                    text = "视频评论",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+
+                    }
+                    photos.forEach { item ->
+                        AsyncImage(
+                            modifier = Modifier
+                                .width(250.dp)
+                                .height(160.dp),
+                            model = item
+                        )
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun Introduction(intro: String) {
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(text = "简介", style = MaterialTheme.typography.titleMedium)
+
+        Column {
+            Text(
+                text = intro,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                text = "展开",
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.alpha(ContentAlpha.medium)
+            )
+        }
+    }
+}
+
+@Composable
+fun CreditList(list: List<Credit>) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "演职员", style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "全部44", style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.alpha(ContentAlpha.medium)
+                )
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            item {}
+            items(list) { item ->
+                CreditItem(item = item)
+            }
+            item {}
+        }
+    }
+}
+
+@Composable
+fun CreditItem(item: Credit) {
+    Column(modifier = Modifier.width(90.dp)) {
+        AsyncImage(
+            model = item.avatar,
+            modifier = Modifier
+                .width(90.dp)
+                .height(120.dp)
+                .clip(RoundedCornerShape(4.dp))
+        )
+        Text(
+            text = item.name,
+            maxLines = 1,
+            style = MaterialTheme.typography.bodyMedium,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = item.character,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.White.copy(alpha = 0.5f)
+        )
+    }
+}
+
+@Composable
+fun SubjectList(list: List<String>) {
+    LazyRow(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        item {
+            Text(
+                text = "被收录于",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.5f)
+            )
+        }
+        items(list) { item ->
+            SubjectItem(name = item)
+        }
+        item {
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+    }
+}
+
+@Composable
+fun SubjectItem(name: String) {
+    Card(
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = Color.Black.copy(alpha = 0.2f)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(R.drawable.ic_subjects_ranking),
+                contentDescription = null,
+            )
+            Text(text = name, style = MaterialTheme.typography.bodyMedium)
+            Icon(
+                modifier = Modifier.size(16.dp),
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null
+            )
+        }
     }
 }
 
