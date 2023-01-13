@@ -30,15 +30,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import com.example.doubanmovie.R
 import com.example.doubanmovie.data.*
 import com.example.doubanmovie.ui.components.AsyncImage
+import com.example.doubanmovie.ui.components.ExpandableText
 import com.example.doubanmovie.ui.components.VideoView
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
 
@@ -584,19 +587,13 @@ fun Introduction(intro: String) {
     ) {
         Text(text = "简介", style = MaterialTheme.typography.titleMedium)
 
-        Column {
-            Text(
-                text = intro,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium,
+        ExpandableText(
+            text = intro,
+            showMoreStyle = SpanStyle(
+                fontSize = 14.sp,
+                color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
             )
-            Text(
-                text = "展开",
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.alpha(ContentAlpha.medium)
-            )
-        }
+        )
     }
 }
 
