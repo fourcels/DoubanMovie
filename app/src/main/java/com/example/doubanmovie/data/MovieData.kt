@@ -44,6 +44,12 @@ data class Video(
     val coverUrl: String,
 )
 
+data class Award(
+    val title: String,
+    val name: String,
+    val winner: String,
+)
+
 data class MovieDetail(
     val title: String,
     val originalTitle: String,
@@ -62,4 +68,5 @@ data class MovieDetail(
     val trailer: Video,
     val videos: List<Video> = emptyList(),
     val photos: List<String> = emptyList(),
+    val awards: List<Award> = emptyList(),
 )

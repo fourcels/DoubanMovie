@@ -32,6 +32,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -482,12 +483,22 @@ fun Content() {
             videos = movieDetail.videos,
             photos = movieDetail.photos
         )
+        AwardList(movieDetail.awards)
     }
 }
 
 @Composable
-fun Trailer(trailer: Video, videos: List<Video>, photos: List<String>) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+fun ContentBox(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    title: String,
+    extra: String? = null,
+    content: @Composable () -> Unit = {}
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -495,20 +506,70 @@ fun Trailer(trailer: Video, videos: List<Video>, photos: List<String>) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "预告片 / 剧照", style = MaterialTheme.typography.titleMedium)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "全部889",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.alpha(ContentAlpha.medium)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
                 )
-                Icon(
-                    imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
+            )
+            if (extra != null) {
+                Row(
+                    modifier = Modifier.alpha(ContentAlpha.medium),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = extra,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.ChevronRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
         }
+        Box(modifier = Modifier.padding(contentPadding)) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun AwardList(list: List<Award>) {
+    ContentBox(
+        title = "获奖记录",
+        extra = "全部4"
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            list.forEach { item ->
+                AwardItem(data = item)
+            }
+        }
+    }
+}
+
+@Composable
+fun AwardItem(data: Award) {
+    Column {
+        Text(text = data.title, style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = listOf(data.name, data.winner).joinToString(separator = " "),
+            modifier = Modifier.alpha(ContentAlpha.medium),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+@Composable
+fun Trailer(trailer: Video, videos: List<Video>, photos: List<String>) {
+    ContentBox(
+        title = "预告片 / 剧照",
+        extra = "全部889",
+        contentPadding = PaddingValues(0.dp),
+    ) {
         LazyRow {
             item {
                 Row(
@@ -581,14 +642,12 @@ fun Trailer(trailer: Video, videos: List<Video>, photos: List<String>) {
 
 @Composable
 fun Introduction(intro: String) {
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ContentBox(
+        title = "简介",
     ) {
-        Text(text = "简介", style = MaterialTheme.typography.titleMedium)
-
         ExpandableText(
             text = intro,
+            style = MaterialTheme.typography.bodyMedium,
             showMoreStyle = SpanStyle(
                 fontSize = 14.sp,
                 color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
@@ -599,27 +658,11 @@ fun Introduction(intro: String) {
 
 @Composable
 fun CreditList(list: List<Credit>) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "演职员", style = MaterialTheme.typography.titleMedium)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "全部44", style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.alpha(ContentAlpha.medium)
-                )
-                Icon(
-                    imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
+    ContentBox(
+        title = "演职员",
+        extra = "全部44",
+        contentPadding = PaddingValues(0.dp),
+    ) {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             item {}
             items(list) { item ->
@@ -807,5 +850,27 @@ private val movieDetail = MovieDetail(
     photos = listOf(
         "https://img2.doubanio.com/view/photo/sqxs/public/p2561714803.webp",
         "https://img3.doubanio.com/view/photo/sqxs/public/p456482220.webp"
+    ),
+    awards = listOf(
+        Award(
+            title = "第67届奥斯卡金像奖",
+            name = "最佳影片(提名)",
+            winner = "妮基·马文"
+        ),
+        Award(
+            title = "第52届金球奖",
+            name = "电影类 剧情片最佳男主角(提名)",
+            winner = "摩根·弗里曼"
+        ),
+        Award(
+            title = "第19届日本电影学院奖",
+            name = "最佳外语片",
+            winner = "妮基·马文"
+        ),
+        Award(
+            title = "第20届报知映画赏",
+            name = "海外作品奖",
+            winner = "弗兰克·德拉邦特"
+        ),
     )
 )
