@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,9 @@ fun RatingBar(
     starIcon: ImageVector = Icons.Filled.Star,
     ratedStarsColor: Color = MaterialTheme.colorScheme.primary,
     unRatedStarsColor: Color = Color.LightGray,
-    spaceBetween: Dp = (-2).dp
+    spaceBetween: Dp = (-2).dp,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    textColor: Color = ratedStarsColor,
 ) {
     if (rating == null) {
         return Text(
@@ -43,7 +46,7 @@ fun RatingBar(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(spaceBetween),
@@ -58,7 +61,8 @@ fun RatingBar(
         }
         Text(
             text = rating.toString(),
-            color = ratedStarsColor,
+            color = textColor,
+            style = textStyle,
         )
     }
 }

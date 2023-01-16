@@ -1,5 +1,6 @@
 package com.example.doubanmovie.ui.screen
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -40,14 +43,29 @@ import com.example.doubanmovie.ui.components.AsyncImage
 import com.example.doubanmovie.ui.components.ExpandableText
 import com.example.doubanmovie.ui.components.VideoView
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
+import com.example.doubanmovie.ui.components.RatingBar as RatingBarUI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     onBackPressed: () -> Unit = {}
 ) {
+    val appBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(appBarState)
+    var paddingTop by remember {
+        mutableStateOf(0f)
+    }
+    var topbarContainerColor = remember(appBarState.contentOffset, paddingTop) {
+        var alpha = 0f
+        val contentOffset = -appBarState.contentOffset
+        if (contentOffset > paddingTop) {
+            alpha = 1f
+        }
+        Color(0xFF4C271D).copy(alpha = alpha)
+    }
     Scaffold(
         modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
             .background(
                 Brush.verticalGradient(
                     0.1f to Color(0xFF723B2C),
@@ -57,6 +75,7 @@ fun DetailScreen(
         containerColor = Color.Transparent,
         topBar = {
             CenterAlignedTopAppBar(
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(
@@ -66,7 +85,24 @@ fun DetailScreen(
                     }
                 },
                 title = {
-                    Text(text = "电影")
+                    Crossfade(
+                        targetState = appBarState.contentOffset > -paddingTop
+                    ) { state ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                        ) {
+                            when (state) {
+                                true -> Text(
+                                    modifier = Modifier.align(alignment = Alignment.Center),
+                                    text = "电影",
+                                )
+                                false -> Title(modifier = Modifier.align(alignment = Alignment.CenterStart))
+                            }
+                        }
+
+                    }
                 },
                 actions = {
                     IconButton(onClick = { }) {
@@ -74,16 +110,16 @@ fun DetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = topbarContainerColor,
                 )
             )
         }
 
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(padding)
-        ) {
+        paddingTop = LocalDensity.current.run {
+            padding.calculateTopPadding().toPx()
+        }
+        LazyColumn(contentPadding = padding) {
             item {
                 Header()
             }
@@ -96,6 +132,31 @@ fun DetailScreen(
             item {
                 Content()
             }
+        }
+    }
+}
+
+@Composable
+fun Title(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AsyncImage(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .width(30.dp)
+                .height(40.dp),
+            model = movieDetail.image
+        )
+        Column {
+            Text(text = movieDetail.title, style = MaterialTheme.typography.titleMedium)
+            RatingBarUI(
+                rating = movieDetail.rating.value,
+                textStyle = MaterialTheme.typography.bodySmall,
+                textColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
+            )
         }
     }
 }
