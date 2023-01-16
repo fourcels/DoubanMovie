@@ -93,7 +93,7 @@ fun MovieBody(
         }
         item {
 
-            MovieRank()
+            MovieRank(onNavigateToDetail = onNavigateToDetail)
         }
         item {
             SearchMovieHead()
@@ -107,7 +107,7 @@ fun MovieBody(
             })
         }
         item {
-            SearchMovieList()
+            SearchMovieList(onNavigateToDetail = onNavigateToDetail)
         }
     }
 }
@@ -315,7 +315,9 @@ fun ComingMovie() {
 }
 
 @Composable
-fun MovieRank() {
+fun MovieRank(
+    onNavigateToDetail: () -> Unit = {}
+) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
@@ -360,6 +362,9 @@ fun MovieRank() {
                         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             item.items.forEachIndexed { index, movieItem ->
                                 Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(onClick = onNavigateToDetail),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
@@ -638,16 +643,24 @@ fun TabBar() {
 
 
 @Composable
-fun SearchMovieList() {
+fun SearchMovieList(
+    onNavigateToDetail: () -> Unit = {}
+) {
     Column {
         searchMovieList.forEach { item ->
-            SearchMovieItem(item = item)
+            SearchMovieItem(
+                onNavigateToDetail = onNavigateToDetail,
+                item = item
+            )
         }
     }
 }
 
 @Composable
-fun SearchMovieItem(item: MovieItem) {
+fun SearchMovieItem(
+    onNavigateToDetail: () -> Unit = {},
+    item: MovieItem
+) {
     Column(
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -661,7 +674,8 @@ fun SearchMovieItem(item: MovieItem) {
                 modifier = Modifier
                     .width(110.dp)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(10.dp)),
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable(onClick = onNavigateToDetail),
             )
             Spacer(modifier = Modifier.width(16.dp))
             PhotoPager(item.photos)
