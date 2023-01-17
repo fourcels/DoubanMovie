@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -52,14 +51,16 @@ fun DetailScreen(
 ) {
     val appBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(appBarState)
-    var paddingTop by remember {
-        mutableStateOf(0f)
-    }
-    var topbarContainerColor = remember(appBarState.contentOffset, paddingTop) {
-        var alpha = 0f
+    val paddingTop = 300f
+    val topbarContainerColor = remember(appBarState.contentOffset, paddingTop) {
+        val alpha: Float
         val contentOffset = -appBarState.contentOffset
-        if (contentOffset > paddingTop) {
-            alpha = 1f
+        alpha = if (contentOffset <= 0) {
+            0f
+        } else if (contentOffset > paddingTop) {
+            1f
+        } else {
+            contentOffset / paddingTop
         }
         Color(0xFF4C271D).copy(alpha = alpha)
     }
@@ -85,24 +86,7 @@ fun DetailScreen(
                     }
                 },
                 title = {
-                    Crossfade(
-                        targetState = appBarState.contentOffset > -paddingTop
-                    ) { state ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                        ) {
-                            when (state) {
-                                true -> Text(
-                                    modifier = Modifier.align(alignment = Alignment.Center),
-                                    text = "电影",
-                                )
-                                false -> Title(modifier = Modifier.align(alignment = Alignment.CenterStart))
-                            }
-                        }
-
-                    }
+                    Title(targetState = -appBarState.contentOffset < paddingTop)
                 },
                 actions = {
                     IconButton(onClick = { }) {
@@ -116,9 +100,6 @@ fun DetailScreen(
         }
 
     ) { padding ->
-        paddingTop = LocalDensity.current.run {
-            padding.calculateTopPadding().toPx()
-        }
         LazyColumn(contentPadding = padding) {
             item {
                 Header()
@@ -137,32 +118,56 @@ fun DetailScreen(
 }
 
 @Composable
-fun Title(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        AsyncImage(
+fun Title(targetState: Boolean) {
+    Crossfade(
+        targetState = targetState
+    ) { state ->
+        Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .width(30.dp)
-                .height(40.dp),
-            model = movieDetail.image
-        )
-        Column {
-            Text(text = movieDetail.title, style = MaterialTheme.typography.titleMedium)
-            RatingBarUI(
-                rating = movieDetail.rating.value,
-                textStyle = MaterialTheme.typography.bodySmall,
-                textColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
-            )
+                .fillMaxWidth()
+                .height(40.dp)
+        ) {
+            when (state) {
+                true -> {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = "电影",
+                    )
+                }
+                false -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AsyncImage(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .width(30.dp)
+                                .height(40.dp),
+                            model = movieDetail.image
+                        )
+                        Column {
+                            Text(
+                                text = movieDetail.title,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            RatingBarUI(
+                                rating = movieDetail.rating.value,
+                                textStyle = MaterialTheme.typography.bodySmall,
+                                textColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
+                            )
+                        }
+                    }
+                }
+            }
         }
+
     }
+
 }
 
 @Composable
-fun HonoInfo(info: HonorInfo) {
+fun HonorInfo(info: HonorInfo) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(4.dp))
@@ -220,7 +225,7 @@ fun HonoInfo(info: HonorInfo) {
 fun HonorInfos(honorInfos: List<HonorInfo>) {
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         honorInfos.forEach { item ->
-            HonoInfo(item)
+            HonorInfo(item)
         }
     }
 }
