@@ -58,6 +58,7 @@ android {
 }
 
 dependencies {
+    implementation "com.webtoonscorp.android:readmore-material3:1.2.4"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation "io.coil-kt:coil-compose:2.2.2"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"

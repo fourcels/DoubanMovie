@@ -3,6 +3,7 @@ package com.example.doubanmovie.ui.screen
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -42,6 +43,7 @@ import com.example.doubanmovie.ui.components.AsyncImage
 import com.example.doubanmovie.ui.components.ExpandableText
 import com.example.doubanmovie.ui.components.VideoView
 import com.example.doubanmovie.ui.theme.DoubanMovieTheme
+import com.webtoonscorp.android.readmore.material3.ReadMoreText
 import com.example.doubanmovie.ui.components.RatingBar as RatingBarUI
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -703,16 +705,19 @@ fun Trailer(trailer: Video, videos: List<Video>, photos: List<String>) {
 
 @Composable
 fun Introduction(intro: String) {
+    val (expanded, onExpandedChange) = remember { mutableStateOf(false) }
     ContentBox(
         title = "简介",
     ) {
-        ExpandableText(
+        ReadMoreText(
             text = intro,
-            style = MaterialTheme.typography.bodyMedium,
-            showMoreStyle = SpanStyle(
-                fontSize = 14.sp,
-                color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
-            )
+            expanded = expanded,
+            modifier = Modifier
+                .clickable { onExpandedChange(!expanded) }
+                .fillMaxWidth(),
+            readMoreMaxLines = 3,
+            readMoreText = "展开",
+            readMoreColor = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
         )
     }
 }
@@ -724,12 +729,13 @@ fun CreditList(list: List<Credit>) {
         extra = "全部44",
         contentPadding = PaddingValues(0.dp),
     ) {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            item {}
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
             items(list) { item ->
                 CreditItem(item = item)
             }
-            item {}
         }
     }
 }
